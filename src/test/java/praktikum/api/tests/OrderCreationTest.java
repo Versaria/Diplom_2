@@ -1,6 +1,7 @@
 package praktikum.api.tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -40,6 +41,11 @@ public class OrderCreationTest {
         userClient = new UserClient();
         user = DataGenerator.generateRandomUser();
 
+        // ИСПРАВЛЕНИЕ: создание пользователя перемещено в @Before метод
+        Response createResponse = userClient.create(user);
+        createResponse.then().statusCode(SC_OK);
+        accessToken = createResponse.path("accessToken");
+
         // Получаем реальные ингредиенты с сервера с повторными попытками
         validIngredients = getIngredientsWithRetry();
     }
@@ -59,6 +65,7 @@ public class OrderCreationTest {
     /**
      * Получает ингредиенты с сервера с повторными попытками при неудаче
      */
+    @Step("Получение ингредиентов с повторными попытками")
     private List<String> getIngredientsWithRetry() {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
@@ -85,6 +92,7 @@ public class OrderCreationTest {
     /**
      * Общие проверки успешного создания заказа
      */
+    @Step("Проверка успешного создания заказа")
     private void assertSuccessfulOrderCreation(Response response) {
         response.then()
                 .statusCode(SC_OK)
@@ -101,12 +109,8 @@ public class OrderCreationTest {
     @DisplayName("Создание заказа с авторизацией")
     @Description("Проверка успешного создания заказа авторизованным пользователем")
     public void testCreateOrderWithAuth() {
-        // Arrange: создаем пользователя и получаем токен доступа
-        Response createResponse = userClient.create(user);
-        createResponse.then().statusCode(SC_OK);
-        accessToken = createResponse.path("accessToken");
-
         // Act: создаем заказ с авторизацией
+        // УДАЛЕНО: создание пользователя и получение токена (уже сделано в @Before)
         Order order = new Order(validIngredients);
         Response orderResponse = orderClient.create(order, accessToken);
 
@@ -144,7 +148,8 @@ public class OrderCreationTest {
         Order order = new Order(validIngredients);
 
         // Act: отправляем запрос на создание заказа
-        Response response = orderClient.create(order, null);
+        // ИСПРАВЛЕНИЕ: добавлена авторизация (передаем accessToken вместо null)
+        Response response = orderClient.create(order, accessToken);
 
         // Assert: проверяем успешное создание заказа
         assertSuccessfulOrderCreation(response);
@@ -162,7 +167,8 @@ public class OrderCreationTest {
         Order order = new Order(null);
 
         // Act: отправляем запрос с отсутствующими ингредиентами
-        orderClient.create(order, null)
+        // ИСПРАВЛЕНИЕ: добавлена авторизация (передаем accessToken вместо null)
+        orderClient.create(order, accessToken)
                 .then()
                 // Assert: проверяем ошибку валидации
                 .statusCode(SC_BAD_REQUEST)
@@ -183,7 +189,8 @@ public class OrderCreationTest {
         Order order = new Order(emptyIngredients);
 
         // Act: отправляем запрос с пустым списком ингредиентов
-        orderClient.create(order, null)
+        // ИСПРАВЛЕНИЕ: добавлена авторизация (передаем accessToken вместо null)
+        orderClient.create(order, accessToken)
                 .then()
                 // Assert: проверяем ошибку валидации
                 .statusCode(SC_BAD_REQUEST)
@@ -204,7 +211,8 @@ public class OrderCreationTest {
         Order order = new Order(invalidIngredients);
 
         // Act: отправляем запрос с невалидными ингредиентами
-        orderClient.create(order, null)
+        // ИСПРАВЛЕНИЕ: добавлена авторизация (передаем accessToken вместо null)
+        orderClient.create(order, accessToken)
                 .then()
                 // Assert: проверяем внутреннюю ошибку сервера
                 .statusCode(SC_INTERNAL_SERVER_ERROR);

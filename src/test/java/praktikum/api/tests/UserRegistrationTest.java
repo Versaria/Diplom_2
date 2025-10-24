@@ -1,6 +1,7 @@
 package praktikum.api.tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -45,6 +46,7 @@ public class UserRegistrationTest {
     /**
      * Общие проверки успешной регистрации
      */
+    @Step("Проверка успешной регистрации пользователя")
     private void assertSuccessfulRegistration(Response response) {
         response.then()
                 .statusCode(SC_OK)
@@ -58,6 +60,7 @@ public class UserRegistrationTest {
     /**
      * Проверка ошибки регистрации с обязательными полями
      */
+    @Step("Проверка ошибки обязательных полей")
     private void assertRegistrationRequiredFieldsError(Response response) {
         response.then()
                 .statusCode(SC_FORBIDDEN)
@@ -68,6 +71,7 @@ public class UserRegistrationTest {
     /**
      * Проверка ошибки дубликата пользователя
      */
+    @Step("Проверка ошибки дубликата пользователя")
     private void assertDuplicateUserError(Response response) {
         response.then()
                 .statusCode(SC_FORBIDDEN)
@@ -132,7 +136,7 @@ public class UserRegistrationTest {
     }
 
     /**
-     * Тест проверяет обработку отсутствия обязательного поля password
+     * Тест проверяет обработку отсутствия обязательного поле password
      * Ожидается ошибка с сообщением о необходимости всех полей
      */
     @Test

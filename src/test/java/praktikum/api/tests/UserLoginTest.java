@@ -1,6 +1,7 @@
 package praktikum.api.tests;
 
 import io.qameta.allure.Description;
+import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -26,6 +27,7 @@ public class UserLoginTest {
 
     // Инициализирует клиент API и создает тестового пользователя
     @Before
+    @Step("Инициализация тестовых данных")
     public void setUp() {
         userClient = new UserClient();
         user = DataGenerator.generateRandomUser();
@@ -38,6 +40,7 @@ public class UserLoginTest {
 
     // Очищает тестовые данные путем удаления созданного пользователя
     @After
+    @Step("Очистка тестовых данных")
     public void tearDown() {
         if (accessToken != null) {
             try {
@@ -51,6 +54,7 @@ public class UserLoginTest {
     /**
      * Общие проверки успешной авторизации
      */
+    @Step("Проверка успешной авторизации")
     private void assertSuccessfulLogin(Response response) {
         response.then()
                 .statusCode(SC_OK)
@@ -64,6 +68,7 @@ public class UserLoginTest {
     /**
      * Общие проверки неуспешной авторизации
      */
+    @Step("Проверка неуспешной авторизации")
     private void assertFailedLogin(Response response) {
         response.then()
                 .statusCode(SC_UNAUTHORIZED)
