@@ -90,11 +90,11 @@ public class UserRegistrationTest {
         // Act: отправляем запрос на создание пользователя
         Response response = userClient.create(user);
 
+        // Сохраняем токен перед ассертом
+        accessToken = response.path("accessToken");
+
         // Assert: проверяем успешный ответ и структуру данных
         assertSuccessfulRegistration(response);
-
-        // Сохраняем токен для последующей очистки в tearDown
-        accessToken = response.path("accessToken");
     }
 
     /**
@@ -107,8 +107,11 @@ public class UserRegistrationTest {
     public void testDuplicateUserCreation() {
         // Arrange: создаем первого пользователя
         Response firstResponse = userClient.create(user);
-        firstResponse.then().statusCode(SC_OK);
+
+        // Сохраняем токен перед ассертом
         accessToken = firstResponse.path("accessToken");
+
+        firstResponse.then().statusCode(SC_OK);
 
         // Act: пытаемся создать идентичного пользователя
         Response response = userClient.create(user);
